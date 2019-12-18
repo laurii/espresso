@@ -3,8 +3,6 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-import math
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -121,7 +119,7 @@ class SpeechTransformerModel(TransformerModel):
             task.feat_in_channels))
         assert task.feat_dim % task.feat_in_channels == 0
         conv_layers = ConvBNReLU(out_channels, kernel_sizes, strides,
-            in_channels=task.feat_in_channels) if not out_channels is None else None
+            in_channels=task.feat_in_channels) if out_channels is not None else None
 
         transformer_encoder_input_size = task.feat_dim // task.feat_in_channels
         if conv_layers is not None:
@@ -135,7 +133,7 @@ class SpeechTransformerModel(TransformerModel):
                 transformer_encoder_input_size = \
                     (transformer_encoder_input_size + s - 1) // s
             transformer_encoder_input_size *= out_channels[-1]
-        
+
         encoder = cls.build_encoder(args, conv_layers_before=conv_layers,
             input_size=transformer_encoder_input_size)
         decoder = cls.build_decoder(args, dict, decoder_embed_tokens)
@@ -257,6 +255,7 @@ class SpeechTransformerEncoder(TransformerEncoder):
 class SpeechTransformerDecoder(TransformerDecoder):
     def masked_copy_incremental_state(self, incremental_state, another_cached_state, mask):
         pass
+
 
 @register_model_architecture('speech_transformer', 'speech_transformer')
 def base_architecture(args):

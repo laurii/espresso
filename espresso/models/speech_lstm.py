@@ -9,6 +9,7 @@ import torch.nn.functional as F
 
 from fairseq import options, utils, checkpoint_utils
 from fairseq.models import (
+    FairseqDecoder,
     FairseqEncoder,
     FairseqIncrementalDecoder,
     FairseqLanguageModel,
@@ -17,7 +18,6 @@ from fairseq.models import (
     register_model_architecture,
 )
 from fairseq.models.lstm import (
-    AttentionLayer,
     Embedding,
     LSTM,
     LSTMCell,
@@ -26,7 +26,7 @@ from fairseq.models.lstm import (
 from fairseq.modules import AdaptiveSoftmax
 
 from espresso.modules import speech_attention
-from espresso.tasks.speech_recognition import SpeechRecognitionTask
+from espresso.tasks.speech_recognition import SpeechRecognitionEspressoTask
 import espresso.tools.utils as speech_utils
 
 
@@ -80,7 +80,7 @@ class SpeechLSTMModel(FairseqEncoderDecoderModel):
                             'layers (starting from the 2nd layer), i.e., the actual '
                             'output of such layer is the sum of its input and output')
         parser.add_argument('--attention-type', type=str, metavar='STR',
-                            choices=['bahdanau','luong'],
+                            choices=['bahdanau', 'luong'],
                             help='attention type')
         parser.add_argument('--attention-dim', type=int, metavar='N',
                             help='attention dimension')
@@ -167,7 +167,7 @@ class SpeechLSTMModel(FairseqEncoderDecoderModel):
             task.feat_in_channels))
         assert task.feat_dim % task.feat_in_channels == 0
         conv_layers = ConvBNReLU(out_channels, kernel_sizes, strides,
-            in_channels=task.feat_in_channels) if not out_channels is None else None
+            in_channels=task.feat_in_channels) if out_channels is not None else None
 
         rnn_encoder_input_size = task.feat_dim // task.feat_in_channels
         if conv_layers is not None:
@@ -294,7 +294,7 @@ class LSTMLanguageModel(FairseqLanguageModel):
 
         if args.is_wordlm and hasattr(task, 'word_dictionary'):
             dictionary = task.word_dictionary
-        elif isinstance(task, SpeechRecognitionTask):
+        elif isinstance(task, SpeechRecognitionEspressoTask):
             dictionary = task.target_dictionary
         else:
             dictionary = task.source_dictionary
@@ -719,7 +719,7 @@ class SpeechLSTMDecoder(FairseqIncrementalDecoder):
                 return torch.where(mask_unsqueezed, state, another_state)
             else:
                 assert another_state is None
-                return  None
+                return None
 
         new_state = tuple(map(mask_copy_state, cached_state, another_cached_state))
         utils.set_incremental_state(self, incremental_state, 'cached_state', new_state)

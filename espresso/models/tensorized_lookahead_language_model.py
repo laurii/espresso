@@ -3,7 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import *
+from typing import Any, Callable, Dict, List
 import torch
 
 from fairseq.models import FairseqLanguageModel, FairseqIncrementalDecoder
@@ -254,4 +254,3 @@ class _TensorizedLookaheadLanguageModelDecoder(FairseqIncrementalDecoder):
 
     def output_layer(self, features, **kwargs):
         pass
-

@@ -103,7 +103,7 @@ class SpeechFConvModel(FConvModel):
             task.feat_in_channels))
         assert task.feat_dim % task.feat_in_channels == 0
         conv_layers = ConvBNReLU(out_channels, kernel_sizes, strides,
-            in_channels=task.feat_in_channels) if not out_channels is None else None
+            in_channels=task.feat_in_channels) if out_channels is not None else None
 
         fconv_encoder_input_size = task.feat_dim // task.feat_in_channels
         if conv_layers is not None:
@@ -116,7 +116,7 @@ class SpeechFConvModel(FConvModel):
                     s = stride
                 fconv_encoder_input_size = (fconv_encoder_input_size + s - 1) // s
             fconv_encoder_input_size *= out_channels[-1]
-        
+
         encoder = SpeechFConvEncoder(
             conv_layers_before=conv_layers,
             input_size=fconv_encoder_input_size,
@@ -169,7 +169,7 @@ class SpeechFConvEncoder(FConvEncoder):
         self.conv_layers_before = conv_layers_before
         self.fc0 = Linear(input_size, embed_dim, dropout=dropout) \
             if input_size != embed_dim else None
-        
+
         convolutions = extend_conv_spec(convolutions)
         in_channels = convolutions[0][0]
         self.fc1 = Linear(embed_dim, in_channels, dropout=dropout)

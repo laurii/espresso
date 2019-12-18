@@ -12,7 +12,7 @@ from fairseq.data import data_utils
 from fairseq.models import FairseqIncrementalDecoder
 from fairseq.options import eval_str_list
 
-from fairseq.criterions import FairseqCriterion, register_criterion
+from fairseq.criterions import register_criterion
 from fairseq.criterions.cross_entropy import CrossEntropyCriterion
 
 from espresso.tools import wer
@@ -80,6 +80,7 @@ class CrossEntropyWithWERCriterion(CrossEntropyCriterion):
                 target = sample['target']
                 tokens = sample['net_input']['prev_output_tokens']
                 lprobs = []
+                pred = None
                 for step in range(target.size(1)):
                     if step > 0:
                         sampling_mask = torch.rand([target.size(0), 1],
@@ -90,7 +91,7 @@ class CrossEntropyWithWERCriterion(CrossEntropyCriterion):
                         feed_tokens = tokens[:, step:step + 1]
                     log_probs, _ = self._decode(feed_tokens,
                         model, encoder_out, incremental_states)
-                    pred = log_probs.argmax(-1,keepdim=True)
+                    pred = log_probs.argmax(-1, keepdim=True)
                     lprobs.append(log_probs)
                 lprobs = torch.stack(lprobs, dim=1)
             else:

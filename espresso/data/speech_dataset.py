@@ -24,10 +24,10 @@ def collate(
                 [s[key] for s in samples], 0.0, left_pad,
             )
         elif key == 'target':
-          return data_utils.collate_tokens(
-              [s[key] for s in samples],
-              pad_idx, eos_idx, left_pad, move_eos_to_beginning,
-          )
+            return data_utils.collate_tokens(
+                [s[key] for s in samples],
+                pad_idx, eos_idx, left_pad, move_eos_to_beginning,
+            )
         else:
             raise ValueError('Invalid key.')
 

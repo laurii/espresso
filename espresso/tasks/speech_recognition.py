@@ -3,17 +3,12 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
+
 import torch
 
-import itertools
-import os
-import re
-
 from fairseq import options
-from fairseq.data import (
-    ConcatDataset,
-    data_utils,
-)
+from fairseq.data import ConcatDataset
 
 from fairseq.tasks import FairseqTask, register_task
 
@@ -25,8 +20,8 @@ from espresso.data import (
 )
 
 
-@register_task('speech_recognition')
-class SpeechRecognitionTask(FairseqTask):
+@register_task('speech_recognition_espresso')
+class SpeechRecognitionEspressoTask(FairseqTask):
     """
     Transcribe from speech (source) to token text (target).
 

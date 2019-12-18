@@ -11,7 +11,7 @@ from fairseq.data import data_utils
 from fairseq.models import FairseqIncrementalDecoder
 from fairseq.options import eval_str_list
 
-from fairseq.criterions import FairseqCriterion, register_criterion
+from fairseq.criterions import register_criterion
 from fairseq.criterions.label_smoothed_cross_entropy import LabelSmoothedCrossEntropyCriterion
 
 from espresso.tools import wer
@@ -123,6 +123,7 @@ class LabelSmoothedCrossEntropyWithWERCriterion(LabelSmoothedCrossEntropyCriteri
                 target = sample['target']
                 tokens = sample['net_input']['prev_output_tokens']
                 lprobs = []
+                pred = None
                 for step in range(target.size(1)):
                     if step > 0:
                         sampling_mask = torch.rand([target.size(0), 1],

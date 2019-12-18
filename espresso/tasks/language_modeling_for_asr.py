@@ -8,8 +8,8 @@ import torch
 import os
 
 from fairseq import tokenizer
+from fairseq.data import TruncatedDictionary
 from fairseq.tasks import register_task
-
 from fairseq.tasks.language_modeling import LanguageModelingTask
 
 from espresso.data import TokenDictionary

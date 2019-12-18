@@ -5,7 +5,8 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
-import sys, re
+import re
+import sys
 from collections import Counter
 
 from espresso.tools.utils import edit_distance
@@ -68,7 +69,7 @@ def main(args):
             utt_id, text = line.strip().split(None, 1)
             assert utt_id in refs, utt_id
             ref, hyp = refs[utt_id], text
-            
+
             # filter words according to word_filters (support re.sub only)
             for pattern, repl in word_filters:
                 ref = re.sub(pattern, repl, ref)
@@ -95,4 +96,4 @@ def main(args):
 if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
-    main(args) 
+    main(args)

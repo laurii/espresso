@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import re
+import sys
 
 from collections import Counter, OrderedDict
 
@@ -50,12 +51,12 @@ class Scorer(object):
         if not isinstance(pred, str):
             raise TypeError('pred must be a string(got {})'.format(type(pred)))
 
-        assert not utt_id in self.char_results, \
+        assert utt_id not in self.char_results, \
             'Duplicated utterance id detected: {}'.format(utt_id)
         self.char_results[utt_id] = pred + '\n'
 
         pred_words = self.dict.tokens_to_sentence(pred, bpe_symbol=bpe_symbol)
-        assert not utt_id in self.results, \
+        assert utt_id not in self.results, \
             'Duplicated utterance id detected: {}'.format(utt_id)
         self.results[utt_id] = pred_words + '\n'
 
@@ -93,7 +94,7 @@ class Scorer(object):
         _, steps, counter = speech_utils.edit_distance(ref_word_list,
             pred_word_list)
         self.word_counter += counter
-        assert not utt_id in self.aligned_results, \
+        assert utt_id not in self.aligned_results, \
             'Duplicated utterance id detected: {}'.format(utt_id)
         self.aligned_results[utt_id] = speech_utils.aligned_print(ref_word_list,
             pred_word_list, steps)
@@ -175,4 +176,3 @@ class Scorer(object):
             for utt_id in self.aligned_results:
                 res += utt_id + '\n' + self.aligned_results[utt_id]
         return res
-

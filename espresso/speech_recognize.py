@@ -15,7 +15,6 @@ import torch
 from fairseq import checkpoint_utils, options, progress_bar, tasks, utils
 from fairseq.meters import StopwatchMeter, TimeMeter
 from fairseq.models import FairseqLanguageModel
-from fairseq.utils import import_user_module
 
 from espresso.models.external_language_model import MultiLevelLanguageModel
 from espresso.models.tensorized_lookahead_language_model import TensorizedLookaheadLanguageModel

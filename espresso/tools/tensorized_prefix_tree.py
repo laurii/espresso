@@ -3,14 +3,13 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-import os, re
 import numpy as np
-from typing import *
+from typing import Callable, List
 
 import torch
 
 from espresso.data import TokenDictionary
-from espresso.tools.utils import lexical_prefix_tree
+from espresso.tools.lexical_prefix_tree import lexical_prefix_tree
 
 
 class TensorizedPrefixTree:

@@ -5,14 +5,13 @@
 
 import math
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
-from fairseq import options, utils
+from fairseq import utils
 from fairseq.models import FairseqIncrementalDecoder, FairseqLanguageModel
 
 from espresso.data import TokenDictionary
-from espresso.tools.utils import tokenize, lexical_prefix_tree
+from espresso.tools.lexical_prefix_tree import lexical_prefix_tree
+from espresso.tools.utils import tokenize
 
 
 def _clone_cached_state(cached_state):

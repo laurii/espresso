@@ -60,7 +60,8 @@ class TestSpeechUtils(unittest.TestCase):
         self.oovs = list(string.ascii_uppercase)
         self.non_lang_syms = ['<noise>', '<spnoise>', '<sil>']
         self.num_sentences = 100
-        self.dict = self.make_dictionary(self.vocab,
+        self.dict = self.make_dictionary(
+            self.vocab,
             non_lang_syms=self.non_lang_syms,
         )
         self.text = [self.generate_text(self.vocab, self.oovs,
@@ -129,12 +130,12 @@ class TestSpeechUtils(unittest.TestCase):
             [1, 0, 0, 0],
             [1, 1, 1, 1],
             [0, 0, 0, 0],
-            [1, 1, 1, 0]]).byte()
+            [1, 1, 1, 0]]).bool()
         expected_mask2 = torch.tensor([
             [1, 0, 0, 0, 0],
             [1, 1, 1, 1, 0],
             [0, 0, 0, 0, 0],
-            [1, 1, 1, 0, 0]]).byte()
+            [1, 1, 1, 0, 0]]).bool()
 
         generated_mask = utils.sequence_mask(seq_len)
         generated_mask2 = utils.sequence_mask(seq_len, max_len=5)
@@ -199,12 +200,14 @@ class TestSpeechUtils(unittest.TestCase):
     def assertTensorEqual(self, t1, t2):
         self.assertEqual(t1.size(), t2.size(), "size mismatch")
         if (t1.dtype == torch.short or t1.dtype == torch.int or \
-            t1.dtype == torch.long or t1.dtype == torch.uint8) and \
+            t1.dtype == torch.long or t1.dtype == torch.uint8 or \
+            t1.dtype == torch.bool) and \
             (t2.dtype == torch.short or t2.dtype == torch.int or \
-            t2.dtype == torch.long or t2.dtype == torch.uint8):
+            t2.dtype == torch.long or t2.dtype == torch.uint8 or \
+            t2.dtype == torch.bool):
             self.assertEqual(t1.ne(t2).long().sum(), 0)
         else:
-            self.assertEqual(t1.allclose(t2,rtol=1e-05, atol=1e-08), True)
+            self.assertEqual(t1.allclose(t2, rtol=1e-05, atol=1e-08), True)
 
 
 if __name__ == "__main__":

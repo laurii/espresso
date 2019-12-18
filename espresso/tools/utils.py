@@ -3,16 +3,14 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-import os, re
+import os
+import re
 import numpy as np
 from collections import Counter
-from typing import Callable, List
 
 import torch
 
 from fairseq import utils
-
-from espresso.data import TokenDictionary
 
 
 def tokenize(sent, space='<space>', non_lang_syms=None):
@@ -39,6 +37,7 @@ def tokenize(sent, space='<space>', non_lang_syms=None):
     tokens = [space if token == ' ' else token for token in tokens]
     return ' '.join(tokens)
 
+
 def collate_frames(values, pad_value=0.0, left_pad=False):
     """Convert a list of 2d tensor into a padded 3d tensor."""
     assert values[0].dim() == 2, "expected 2, got " + str(values[0].dim)
@@ -53,6 +52,7 @@ def collate_frames(values, pad_value=0.0, left_pad=False):
         dst.copy_(v)
     return res
 
+
 def sequence_mask(sequence_length, max_len=None):
     if max_len is None:
         max_len = sequence_length.data.max()
@@ -64,6 +64,7 @@ def sequence_mask(sequence_length, max_len=None):
     seq_range_expand = seq_range.unsqueeze(0).expand(batch_size, max_len)
     seq_length_expand = sequence_length.unsqueeze(1).expand_as(seq_range_expand)
     return seq_range_expand < seq_length_expand
+
 
 def convert_padding_direction(src_frames, src_lengths, right_to_left=False,
     left_to_right=False):
@@ -87,6 +88,7 @@ def convert_padding_direction(src_frames, src_lengths, right_to_left=False,
         index = torch.remainder(range + num_pads, max_len)
     return src_frames.gather(1, index)
 
+
 def plot_attention(attention, hypo_sent, utt_id, save_dir):
     """This function plots the attention for an example and save the plot in
     save_dir with <utt_id>.pdf as its filename.
@@ -108,6 +110,7 @@ def plot_attention(attention, hypo_sent, utt_id, save_dir):
     filename = os.path.join(save_dir, utt_id + '.pdf')
     plt.savefig(filename, bbox_inches='tight')
     plt.close()
+
 
 def edit_distance(ref, hyp):
     """This function is to calculate the edit distance of reference sentence and
@@ -173,6 +176,7 @@ def edit_distance(ref, hyp):
     counter.update(steps)
 
     return dist, steps, counter
+
 
 def aligned_print(ref, hyp, steps):
     """This funcition is to print the result of comparing reference and
@@ -259,58 +263,3 @@ def aligned_print(ref, hyp, steps):
     out_str += '\n'
 
     return out_str
-
-def lexical_prefix_tree(
-    word_dict: TokenDictionary,
-    subword_dict: TokenDictionary,
-    subword_tokenizer: Callable[[str], List[str]] = None
-):
-    """Build a lexical prefix tree for words.
-
-    Args:
-        word_dict: an instance of :class:`fairseq.data.TokenDictionary`.
-        subword_dict: an instance of :class:`fairseq.data.TokenDictionary`.
-        subword_tokenizer (callable): a function that takes a word string as its
-            only one argument, and returns a list of subwords as a result of
-            tokenization.
-
-    Return:
-        root (Node): the root of the prefix tree, where each node has the fields:
-            ('children': Dict[int,Node], 'word_idx': int, 'word_set': Tuple[int]).
-            'children' is subword_idx -> node, and 'word_set' is (first-1, last),
-            where [first, last] is the range of the word indexes (inclusive) in
-            the word dictionary who share the same prefix at that node.
-            We assume words in the word dictionary are in lexical order.
-    """
-
-    class Node(object):
-        def __init__(self, children={}, word_idx=-1, word_set=None):
-            self.children = children
-            self.word_idx = word_idx
-            self.word_set = word_set
-
-    special_symbols = [word_dict.pad(), word_dict.eos(), word_dict.unk()]
-    assert 0 in special_symbols # to ensure widx - 1 >= 0
-    root = Node({}, -1, None)
-    for widx in range(len(word_dict)):
-        if widx not in special_symbols: # skip <pad>, <eos>, <unk>
-            # tokenize a word into a list of subwords
-            subwords = subword_tokenizer(word_dict[widx]) \
-                if subword_tokenizer is not None else list(word_dict[widx])
-            if any(subword_dict.index(s) == subword_dict.unk() for s in subwords):
-                # skip words containing any unknown subwords
-                continue
-            children = root.children
-            for i, s in enumerate(subwords):
-                sidx = subword_dict.index(s)
-                if sidx not in children: # make a new node
-                    children[sidx] = Node({}, -1, (widx - 1, widx))
-                else:
-                    children[sidx].word_set = (
-                        min(children[sidx].word_set[0], widx - 1),
-                        max(children[sidx].word_set[1], widx)
-                    )
-                if i == len(subwords) - 1: # if word end, set word_idx
-                    children[sidx].word_idx = widx
-                children = children[sidx].children # move to children
-    return root

@@ -176,7 +176,7 @@ class TestSpeechDataset(unittest.TestCase):
             t2.dtype == torch.int or t2.dtype == torch.long):
             self.assertEqual(t1.ne(t2).long().sum(), 0)
         else:
-            self.assertEqual(t1.allclose(t2,rtol=1e-05, atol=1e-08), True)
+            self.assertEqual(t1.allclose(t2, rtol=1e-05, atol=1e-08), True)
 
 
 if __name__ == "__main__":

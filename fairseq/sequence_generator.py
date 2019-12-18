@@ -7,11 +7,11 @@ import math
 
 import torch
 
-from espresso.models.external_language_model import RawOutExternalLanguageModelBase
-
 from fairseq import search, utils
 from fairseq.data import data_utils
 from fairseq.models import FairseqIncrementalDecoder
+
+from espresso.models.external_language_model import RawOutExternalLanguageModelBase
 
 
 class SequenceGenerator(object):
